@@ -3,4 +3,4 @@ CFLAGS = -Wall -Wextra -ggdb -std=c11 -pedantic `pkg-config --cflags sdl2`
 LIBS = `pkg-config --libs sdl2`
 
 snake: snake.c
-	$(CC) $(CFLAGS) -o snake snake.c $(LIBS)
+	$(CC) $(CFLAGS) -o snake snake.c $(LIBS) && ./snake
