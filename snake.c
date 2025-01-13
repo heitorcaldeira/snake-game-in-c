@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 
@@ -11,6 +13,7 @@
 char dir = 'd';
 bool quit = false;
 int count = 3;
+int food[2] = { -1, -1 };
 int snake[WIDTH * HEIGHT][2] = {
   {10, 10},
   {11, 10},
@@ -35,9 +38,33 @@ void* sdlp(void* p) {
   return p;
 }
 
+int* generate_food() {
+  int c = (rand() % (GRID_WIDTH + 1)) - 1;
+  int r = (rand() % (GRID_HEIGHT + 1)) - 1;
+  food[0] = c;
+  food[1] = r;
+  return food;
+}
+
+void unshift_pair(int snake[][2], int *size, int capacity, int newX, int newY) {
+  if (*size >= capacity) {
+    printf("Error: Not enough capacity to unshift.\n");
+    return;
+  }
+
+  for (int i = *size; i > 0; i--) {
+    snake[i][0] = snake[i - 1][0];
+    snake[i][1] = snake[i - 1][1];
+  }
+
+  snake[0][0] = newX;
+  snake[0][1] = newY;
+
+  (*size)++;
+}
+
 void game_loop(SDL_Renderer* renderer) {
   sdlc(SDL_SetRenderDrawColor(renderer, 18, 18, 18, 255));
-
   for (int row = 0; row < GRID_WIDTH; row++) {
     for (int col = 0; col < GRID_HEIGHT; col++) {
       SDL_Rect rect = { row * CELL_SIZE + 1, col * CELL_SIZE + 1, CELL_SIZE - 1, CELL_SIZE - 1 };
@@ -49,6 +76,14 @@ void game_loop(SDL_Renderer* renderer) {
 
   for (int i = 0; i < count; i++) {
     SDL_Rect rect = { snake[i][0] * CELL_SIZE + 1, snake[i][1] * CELL_SIZE + 1, CELL_SIZE - 1, CELL_SIZE - 1 };
+    sdlc(SDL_RenderFillRect(renderer, &rect));
+  }
+
+  if (food[0] == -1 && food[1] == -1) {
+    generate_food();
+  } else {
+    sdlc(SDL_SetRenderDrawColor(renderer, 200, 18, 18, 255));
+    SDL_Rect rect = { food[0] * CELL_SIZE + 1, food[1] * CELL_SIZE + 1, CELL_SIZE - 1, CELL_SIZE - 1 };
     sdlc(SDL_RenderFillRect(renderer, &rect));
   }
 
@@ -72,9 +107,15 @@ void game_loop(SDL_Renderer* renderer) {
       old[1] = o[1];
     }
   }
+
+  if (snake[count-1][0] == food[0] && snake[count-1][1] == food[1]) {
+    unshift_pair(snake, &count, 1024, old[0], old[1]);
+    generate_food();
+  }
 }
 
 int main(void) {
+  srand((unsigned)time(NULL));
   SDL_Window* window = sdlp(SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0));
   SDL_Renderer* renderer = sdlp(SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
 
