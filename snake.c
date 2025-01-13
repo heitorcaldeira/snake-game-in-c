@@ -8,7 +8,7 @@
 #define GRID_WIDTH WIDTH / CELL_SIZE
 #define GRID_HEIGHT HEIGHT / CELL_SIZE
 
-char dir = 'r';
+char dir = 'd';
 bool quit = false;
 int count = 3;
 int snake[WIDTH * HEIGHT][2] = {
@@ -46,26 +46,30 @@ void game_loop(SDL_Renderer* renderer) {
   }
 
   sdlc(SDL_SetRenderDrawColor(renderer, 255, 255, 18, 255));
+
   for (int i = 0; i < count; i++) {
     SDL_Rect rect = { snake[i][0] * CELL_SIZE + 1, snake[i][1] * CELL_SIZE + 1, CELL_SIZE - 1, CELL_SIZE - 1 };
     sdlc(SDL_RenderFillRect(renderer, &rect));
   }
 
-  if (dir == 'r') {
-    for (int i = 0; i < count; i++) {
-      if (snake[i][0] == 0 && snake[i][1] == 0) {
-        continue;
-      }
+  int old[2] = { snake[count-1][0], snake[count-1][1] };
+  if (dir == 'd') {
+    snake[count-1][0] = snake[count-1][0] + 1;
+  } else if (dir == 'a') {
+    snake[count-1][0] = snake[count-1][0] - 1;
+  } else if (dir == 'w') {
+    snake[count-1][1] = snake[count-1][1] - 1;
+  } else if (dir == 's') {
+    snake[count-1][1] = snake[count-1][1] + 1;
+  }
 
-      snake[i][0] = snake[i][0] + 1;
-    }
-  } else if (dir == 'l') {
-    for (int i = 0; i < count; i++) {
-      if (snake[i][0] == 0 && snake[i][1] == 0) {
-        continue;
-      }
-
-      snake[i][0] = snake[i][0] - 1;
+  for (int i = count - 1; i >= 0; i--) {
+    if (i > 0) {
+      int o[2] = { snake[i-1][0], snake[i-1][1] };
+      snake[i-1][0] = old[0];
+      snake[i-1][1] = old[1];
+      old[0] = o[0];
+      old[1] = o[1];
     }
   }
 }
