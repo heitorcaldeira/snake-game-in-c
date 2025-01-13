@@ -12,6 +12,7 @@
 
 char dir = 'd';
 bool quit = false;
+bool render = true;
 int count = 3;
 int food[2] = { -1, -1 };
 int snake[WIDTH * HEIGHT][2] = {
@@ -39,8 +40,8 @@ void* sdlp(void* p) {
 }
 
 int* generate_food() {
-  int c = (rand() % (GRID_WIDTH + 1)) - 1;
-  int r = (rand() % (GRID_HEIGHT + 1)) - 1;
+  int c = (rand() % GRID_WIDTH);
+  int r = (rand() % GRID_HEIGHT);
   food[0] = c;
   food[1] = r;
   return food;
@@ -117,6 +118,12 @@ void game_loop(SDL_Renderer* renderer) {
   else if (snake[count-1][0] < 0) snake[count-1][0] = GRID_WIDTH - 1;
   else if (snake[count-1][1] < 0) snake[count-1][1] = GRID_HEIGHT - 1;
   else if (snake[count-1][1] > GRID_HEIGHT - 1) snake[count-1][1] = 0;
+
+  for (int s = 0; s < count - 1; s++) {
+    if (snake[count-1][0] == snake[s][0] && snake[count-1][1] == snake[s][1]) {
+      render = false;
+    }
+  }
 }
 
 int main(void) {
@@ -137,16 +144,22 @@ int main(void) {
         case SDL_QUIT:
           quit = true;
           break;
+        // TODO: there is a bug when hit two keys too fast
+        // If the snake is moving to the right and we press `s-a`, the key `s` is computed on the dir variable but not computed to the snake movement
+        // because the game_loop is called only after 60ms
         case SDL_KEYDOWN:
           {
             SDL_Keycode code = event.key.keysym.sym;
             if (code == 'd') {
               if (dir != 'a') dir = 'd';
-            } else if (code == 'a') {
+            } 
+            if (code == 'a') {
               if (dir != 'd') dir = 'a';
-            } else if (code == 'w') {
+            }
+            if (code == 'w') {
               if (dir != 's') dir = 'w';
-            } else if (code == 's') {
+            }
+            if (code == 's') {
               if (dir != 'w') dir = 's';
             }
           }
@@ -154,7 +167,7 @@ int main(void) {
       }
     }
 
-    if (SDL_GetTicks() > lastTime + 300) {
+    if (render && SDL_GetTicks() > lastTime + 60) {
       game_loop(renderer);
       lastTime = SDL_GetTicks();
     }
