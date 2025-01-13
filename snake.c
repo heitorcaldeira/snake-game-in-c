@@ -112,6 +112,11 @@ void game_loop(SDL_Renderer* renderer) {
     unshift_pair(snake, &count, 1024, old[0], old[1]);
     generate_food();
   }
+
+  if (snake[count-1][0] > GRID_WIDTH - 1) snake[count-1][0] = 0;
+  else if (snake[count-1][0] < 0) snake[count-1][0] = GRID_WIDTH - 1;
+  else if (snake[count-1][1] < 0) snake[count-1][1] = GRID_HEIGHT - 1;
+  else if (snake[count-1][1] > GRID_HEIGHT - 1) snake[count-1][1] = 0;
 }
 
 int main(void) {
@@ -149,7 +154,7 @@ int main(void) {
       }
     }
 
-    if (SDL_GetTicks() > lastTime + 60) {
+    if (SDL_GetTicks() > lastTime + 300) {
       game_loop(renderer);
       lastTime = SDL_GetTicks();
     }
