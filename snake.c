@@ -131,7 +131,7 @@ int main(void) {
   SDL_Window* window = sdlp(SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0));
   SDL_Renderer* renderer = sdlp(SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
 
-  sdlc(SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255));
+  sdlc(SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255));
   sdlc(SDL_RenderClear(renderer));
 
   Uint32 lastTime = SDL_GetTicks();
